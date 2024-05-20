@@ -1,0 +1,168 @@
+Cinema booking system
+Ignas Kirkilionis EKF-23
+
+Introduction
+The goal of this coursework is to develop a cinema management system that enables users to manage movies and showtimes, book seats for a selected show, and print tickets. The application, named CinemaBookingSystem, is designed to streamline the process of managing movie schedules and seat reservations for both theater administrators and customers.
+
+How to run the program:
+1.	Ensure you have Python installed on your system.
+2.	Save the provided code into a file named cinema_booking_system.py.
+3.	Place the movie and showtime data in movies.txt and showtimes.txt files respectively.
+4.	Run the program using the command python cinema_booking_system.py.
+
+How to use the program:
+1.	The program will automatically load movies and showtimes from the provided text files.
+2.	Follow the prompts to choose a movie and a showtime.
+3.	Specify the number of seats to book and select the seats.
+4.	The program will confirm the booking and print tickets to text files.
+
+
+Polymorphism
+Polymorphism allows methods to do different things based on the object it is acting upon. In this case, the create_show method of the ShowFactory class creates different types of shows based on the show_type parameter.
+
+class ShowFactory:
+    @staticmethod
+    def create_show(show_type, movie, time, screen):
+        if show_type == "MovieShow":
+            return MovieShow(movie, time, screen)
+        else:
+     raise ValueError(f"Unknown show type: {show_type}") 
+
+Here, create_show method can return different types of shows (currently only MovieShow) based on the show_type.
+
+ 
+Abstraction
+Abstraction is demonstrated by the Show class, which provides abstract methods that must be implemented by any subclass.
+
+class Show(ABC):
+    def __init__(self, movie, time, screen):
+        self.movie = movie
+        self.time = time
+        self.screen = screen
+        self.seats = [[False for _ in range(5)] for _ in range(5)]  
+
+    @abstractmethod
+    def display_seats(self):
+        pass
+
+    @abstractmethod
+    def book_seat(self, row, col):
+        pass
+
+    @abstractmethod
+    def choose_seats(self, num_seats):
+        pass
+
+The Show class cannot be instantiated directly and mandates that subclasses implement the display_seats, book_seat, and choose_seats methods.
+
+Inheritance
+Inheritance allows a class to inherit attributes and methods from another class. The MovieShow class inherits from the Show class and implements its abstract methods.
+
+class MovieShow(Show):
+    def display_seats(self):
+        print("Seats Layout (True = Booked, False = Available):")
+        for row in self.seats:
+            print(row)
+
+    def book_seat(self, row, col):
+        if self.seats[row][col]:
+            print(f"Seat ({row}, {col}) is already booked.")
+            return False
+        self.seats[row][col] = True
+        print(f"Seat ({row}, {col}) booked successfully.")
+        return True
+
+    def choose_seats(self, num_seats):
+        booked_seats = []
+        for _ in range(num_seats):
+            while True:
+                self.display_seats()
+                try:
+                    row = int(input("Enter the row number (0-4): "))
+                    col = int(input("Enter the column number (0-4): "))
+                    if 0 <= row < 5 and 0 <= col < 5:
+                        if self.book_seat(row, col):
+                            booked_seats.append((row, col))
+                            break
+                    else:
+                        print("Invalid seat. Enter row and column numbers between 0 and 4.")
+                except ValueError:
+                    print("Invalid input. Enter valid numbers.")
+        return booked_seats
+
+The MovieShow class inherits the constructor from the Show class and provides concrete implementations for the abstract methods.
+ 
+Encapsulation
+Encapsulation is the bundling of data with the methods that operate on that data. The Theater class encapsulates the details of managing movies and showtimes.
+
+class Theater:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(Theater, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
+   def __init__(self):
+        if not hasattr(self, 'initialized'):  
+            self.movies = []
+            self.showtimes = []
+            self.initialized = True
+
+Encapsulation is evident in how the movies and showtimes lists are managed within the class, with methods provided to add and list these entities, while keeping the underlying data structures hidden from outside access.
+
+Singleton Pattern
+The Singleton pattern ensures that a class has only one instance and provides a global point of access to it.
+
+class Theater:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(Theater, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
+   def __init__(self):
+        if not hasattr(self, 'initialized'):  
+            self.movies = []
+            self.showtimes = []
+            self.initialized = True
+
+•	The class variable _instance is used to store the single instance of the Theater class.
+•	The __new__ method checks if _instance is None. If it is, it creates a new instance of the class. If not, it returns the existing instance.
+•	This ensures that only one instance of Theater exists throughout the program.
+ 
+Factory Method Pattern
+The Factory Method Pattern defines an interface for creating an object, but lets subclasses alter the type of objects that will be created. It is used to delegate the responsibility of object instantiation to subclasses or helper methods.
+
+class ShowFactory:
+    @staticmethod
+    def create_show(show_type, movie, time, screen):
+        if show_type == "MovieShow":
+            return MovieShow(movie, time, screen)
+        else:
+            raise ValueError(f"Unknown show type: {show_type}")
+
+•	The create_show method is a static method that does not require an instance of the ShowFactory class to be called.
+•	The method takes show_type as a parameter to determine which type of show object to create.
+•	If show_type is "MovieShow", it creates and returns an instance of MovieShow.
+
+
+Results
+•	Implementing the singleton pattern for the Theater class ensured that only one instance of the theater exists, simplifying state management.
+•	The seat booking functionality had to handle concurrent bookings, ensuring no double bookings occurred.
+
+Conclusion
+The CinemaBookingSystem successfully implements a theater management system that allows users to manage movies, showtimes, and seat bookings. This work has achieved a functional and user-interactive application.
+
+
+Key findings and outcomes:
+•	The use of OOP principles improved the modularity and maintainability of the code.
+•	Error handling and input validation ensured a user-friendly experience.
+•	The program successfully generates printable tickets for booked seats.
+
+
+Future prospects:
+•	Implement a database for persistent storage of movies, showtimes, and bookings.
+•	Add more advanced booking features, such as group bookings and seat selection algorithms for optimal placement.
+
